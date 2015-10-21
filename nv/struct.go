@@ -14,6 +14,19 @@ const (
 //go:generate stringer -type=dataType
 type dataType uint32
 
+// Pretty decodes the NVList in buf as a `map[string]interface{}` preserving the
+// nv type information.
+//
+// The values of each key are themselves a `map[string]interface{}` with keys
+// `type`, and `value` which map to the NV type as a `string` and `interface{}`
+func Pretty(buf []byte) (map[string]interface{}, error) {
+	type list map[string]interface{}
+
+	l := list{}
+	err := Decode(buf, &l)
+	return l, err
+}
+
 const (
 	UNKNOWN dataType = iota
 	BOOLEAN

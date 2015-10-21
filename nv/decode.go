@@ -334,7 +334,14 @@ func decodeListStruct(r io.ReadSeeker, target reflect.Value) error {
 
 		// Set the value appropriately
 		if isMap {
-			target.SetMapIndex(reflect.ValueOf(dataPair.Name), val)
+			name := reflect.ValueOf(dataPair.Name)
+			if target.Type().String() == "nv.list" {
+				val = reflect.ValueOf(map[string]interface{}{
+					"type":  dataPair.Type.String(),
+					"value": val.Interface(),
+				})
+			}
+			target.SetMapIndex(name, val)
 		} else {
 			fieldSetFunc()
 		}
