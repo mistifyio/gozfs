@@ -69,9 +69,16 @@ func main() {
 		})
 	cmdDestroy.Flags().BoolP("defer", "d", false, "defer destroy")
 
+	cmdHolds := genCommand("holds", "Retrieve list of user holds on the specified snapshot.",
+		func(cmd *cobra.Command, args []string) error {
+			name, _ := cmd.Flags().GetString("name")
+			return holds(name)
+		})
+
 	root.AddCommand(
 		cmdExists,
 		cmdDestroy,
+		cmdHolds,
 	)
 	if err := root.Execute(); err != nil {
 		log.Fatal("root execute failed:", err)
