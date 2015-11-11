@@ -12,6 +12,7 @@ import (
 )
 
 var (
+	eexist = syscall.EEXIST.Error()
 	einval = syscall.EINVAL.Error()
 	enoent = syscall.ENOENT.Error()
 )
@@ -111,6 +112,11 @@ func (s *internal) destroy() {
 
 func (s *internal) TearDownTest() {
 	s.destroy()
+}
+
+func (s *internal) TestClone() {
+	s.EqualError(clone(s.pool+"/a/2", s.pool+"/a/1", nil), eexist)
+	s.EqualError(clone(s.pool+"/a 3", s.pool+"/a/1", nil), einval)
 }
 
 func (s *internal) TestListEmpty() {
