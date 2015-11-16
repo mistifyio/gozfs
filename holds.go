@@ -14,6 +14,8 @@ func holds(name string) ([]string, error) {
 	}
 
 	out := make([]byte, 1024)
+	copy(out, empty_list)
+
 	err = ioctl(zfs, name, encoded, out)
 	if err != nil {
 		return nil, err

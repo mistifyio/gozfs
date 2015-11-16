@@ -10,6 +10,8 @@ import (
 	cobra "github.com/spf13/cobra"
 )
 
+const empty_list = "\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00"
+
 var zfs *os.File
 
 func init() {
