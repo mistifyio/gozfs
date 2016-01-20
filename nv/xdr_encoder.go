@@ -3,18 +3,57 @@ package nv
 import (
 	"bytes"
 	"encoding/binary"
+	"errors"
 	"io"
 	"reflect"
 
 	xdr "github.com/davecgh/go-xdr/xdr2"
 )
 
+type xdrEncoder struct {
+	w io.Writer
+}
+
+func newXDREncoder(w io.Writer) xdrEncoder {
+	return xdrEncoder{w: w}
+}
+
+func (e xdrEncoder) Encode(i interface{}) error {
+	if i == nil {
+		return errors.New("can not encode a nil pointer")
+	}
+
+	v := reflect.ValueOf(i)
+
+	if err := validValue(v); err != nil {
+		return err
+	}
+
+	if err := encodePreamble(e.w, xdrCodec, littleEndian); err != nil {
+		return err
+	}
+
+	return encodeList(e.w, v)
+}
+
+func (e xdrEncoder) header(h header) error {
+	return encHeader(e.w, h)
+}
+
 func encHeader(w io.Writer, h header) error {
 	return binary.Write(w, binary.BigEndian, h)
 }
 
+func (e xdrEncoder) footer() error {
+	return encFooter(e.w)
+}
+
 func encFooter(w io.Writer) error {
 	return binary.Write(w, binary.BigEndian, uint64(0))
+}
+
+func (e xdrEncoder) item(name string, dtype dataType, value interface{}) error {
+	return xdrEncode(e.w, name, dtype, value)
 }
 
 func xdrEncode(w io.Writer, name string, dtype dataType, value interface{}) error {
